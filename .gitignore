@@ -28,6 +28,9 @@ bazel-*
 .*.sw?
 .sw?
 
+# CLion Bazel plugin
+.clwb/
+
 # Claude Code memory
 .claude/
 
