@@ -41,3 +41,37 @@ cc_binary(
         "//project:mem_pool_separate_free_structure",
     ],
 )
+
+cc_library(
+    name = "intrusive_list",
+    hdrs = ["intrusive_list.hpp"],
+    visibility = ["//visibility:public"],
+)
+
+cc_library(
+    name = "order",
+    hdrs = ["order.hpp"],
+    visibility = ["//visibility:public"],
+    deps = [
+        ":intrusive_list",
+        ":order_type",
+    ],
+)
+
+cc_library(
+    name = "order_book",
+    srcs = ["order_book.cpp"],
+    hdrs = ["order_book.hpp"],
+    visibility = ["//visibility:public"],
+    deps = [
+        ":intrusive_list",
+        ":mem_pool",
+        ":order",
+    ],
+)
+
+cc_library(
+    name = "order_type",
+    hdrs = ["order_type.hpp"],
+    visibility = ["//visibility:public"],
+)

@@ -2,3 +2,8 @@ module(name = "cpp_trading_exchange")
 
 bazel_dep(name = "rules_cc", version = "0.2.17")
 bazel_dep(name = "googletest", version = "1.17.0.bcr.2")
+git_override(
+    module_name = "googletest",
+    commit = "8b53336594cc52213c6c2c7a0b29194fa896d039",  # Your desired Git SHA
+    remote = "https://github.com/google/googletest",
+)
