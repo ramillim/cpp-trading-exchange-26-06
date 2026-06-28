@@ -1,14 +1,28 @@
 #pragma once
 
+#include <cstddef>
+
 namespace exchange {
 
 template <typename T>
-class IntrusiveList {
+class IntrusiveQueue {
 public:
     struct Node {
         T* next = nullptr;
         T* prev = nullptr;
     };
+
+    T* peek() const { return head_; }
+
+    T* pop() {
+        if (!head_) {
+            return nullptr;
+        }
+
+        T* item = head_;
+        remove(item);
+        return item;
+    }
 
     void append(T* item) {
         Node& node = get_node(item);
@@ -45,19 +59,17 @@ public:
 
     T* head() const { return head_; }
     T* tail() const { return tail_; }
-    std::size_t size() const { return size_; }
-    bool empty() const { return size_ == 0; }
+    [[nodiscard]] std::size_t size() const { return size_; }
+    [[nodiscard]] bool empty() const { return size_ == 0; }
 
 private:
     // This assumes T has a member named 'node' of type IntrusiveList<T>::Node
     // or provides a way to get the node.
-    static Node& get_node(T* item) {
-        return item->list_node;
-    }
+    static Node& get_node(T* item) { return item->list_node; }
 
     T* head_ = nullptr;
     T* tail_ = nullptr;
     std::size_t size_ = 0;
 };
 
-} // namespace exchange
+}  // namespace exchange

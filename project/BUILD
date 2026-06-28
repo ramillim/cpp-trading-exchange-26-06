@@ -43,8 +43,8 @@ cc_binary(
 )
 
 cc_library(
-    name = "intrusive_list",
-    hdrs = ["intrusive_list.hpp"],
+    name = "intrusive_queue",
+    hdrs = ["intrusive_queue.hpp"],
     visibility = ["//visibility:public"],
 )
 
@@ -53,7 +53,7 @@ cc_library(
     hdrs = ["order.hpp"],
     visibility = ["//visibility:public"],
     deps = [
-        ":intrusive_list",
+        ":intrusive_queue",
         ":order_type",
     ],
 )
@@ -64,7 +64,7 @@ cc_library(
     hdrs = ["order_book.hpp"],
     visibility = ["//visibility:public"],
     deps = [
-        ":intrusive_list",
+        ":intrusive_queue",
         ":mem_pool",
         ":order",
     ],

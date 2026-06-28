@@ -2,7 +2,8 @@
 
 A high-performance trading exchange engine written in C++26.
 
-The exchange implements core matching-engine components: order intake, a price-time-priority matching algorithm, and market-data dissemination — built with low-latency primitives (lock-free queues, memory pools, RDTSC timing).
+The exchange implements core matching-engine components: order intake, a price-time-priority matching algorithm, and
+market-data dissemination — built with low-latency primitives (lock-free queues, memory pools, RDTSC timing).
 
 ## Quick start
 
@@ -30,6 +31,7 @@ examples/    # standalone benchmarks and demos
 
 1. Had to upgrade to minimum Ubuntu 22.04 LTS to install gcc-14 and g++-14 in order to run c++26.
 2. Conda/Miniconda was preventing GLIBCXX_3.4.32 from being found. Had to disable with
+
 ```bash
 conda deactivate
 unset LD_LIBRARY_PATH
@@ -87,11 +89,12 @@ Implement memory pool function. See: Memory Pool - API
 - Write test cases
     - Serving a mempool with integers
     - Ensure that allocate/deallocate works
-- Use the second design choice, but if time permits, benchmark performance 
+- Use the second design choice, but if time permits, benchmark performance
   with two different data structures. Log time from start to end and see if
   it's different with the different implementations.
 
 Run tests with:
+
 ```bash
 bazel test //project/tests:mem_pool_test --test_output=all
 ```
@@ -174,3 +177,7 @@ Notes:
   - Object type: Order (4 x uint64_t = 32 bytes), representative of an order book entry.
   - sink=3468889619391 (prevents dead-code elimination)
 ```
+
+# Week 3
+
+![img.png](README_order_book_flow_chart.png)
