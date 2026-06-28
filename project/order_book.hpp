@@ -1,7 +1,7 @@
 #pragma once
 
+#include <map>
 #include <memory>
-#include <unordered_map>
 
 #include "intrusive_queue.hpp"
 #include "mem_pool.hpp"
@@ -30,18 +30,21 @@ public:
      * @param is_buy_side
      * @param price
      * @param size
+     * @param type
      * @return the unmatched size
      */
-    uint32_t tryMatch(bool is_buy_side, uint64_t price, uint32_t size);
+    uint32_t tryMatch(bool is_buy_side, uint64_t price, uint32_t size, OrderType type = OrderType::Limit);
 
-    [[nodiscard]] const std::unordered_map<uint64_t, PriceLevel>& getBuyLevels() const { return buy_levels_; }
-    [[nodiscard]] const std::unordered_map<uint64_t, PriceLevel>& getSellLevels() const { return sell_levels_; }
+    [[nodiscard]] const std::map<uint64_t, PriceLevel>& getBidLevels() const { return bid_levels_; }
+    [[nodiscard]] const std::map<uint64_t, PriceLevel>& getAskLevels() const { return ask_levels_; }
 
 private:
+    void matchAtLevel(PriceLevel& level, uint32_t& total_matched, uint32_t size);
+
     std::string symbol_;
     MemPool<Order> order_pool_;
-    std::unordered_map<uint64_t, PriceLevel> buy_levels_;   // Price -> PriceLevel
-    std::unordered_map<uint64_t, PriceLevel> sell_levels_;  // Price -> PriceLevel
+    std::map<uint64_t, PriceLevel> bid_levels_;  // Price -> PriceLevel
+    std::map<uint64_t, PriceLevel> ask_levels_;  // Price -> PriceLevel
 };
 
 }  // namespace exchange

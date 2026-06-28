@@ -12,10 +12,10 @@ public:
         T* prev = nullptr;
     };
 
-    T* peek() const { return head_; }
+    T* peek() const noexcept { return head_; }
 
-    T* pop() {
-        if (!head_) {
+    T* pop() noexcept {
+        if (!head_) [[unlikely]] {
             return nullptr;
         }
 
@@ -24,9 +24,9 @@ public:
         return item;
     }
 
-    void append(T* item) {
+    void append(T* item) noexcept {
         Node& node = get_node(item);
-        if (!head_) {
+        if (!head_) [[unlikely]] {
             head_ = tail_ = item;
             node.next = node.prev = nullptr;
         } else {
@@ -39,7 +39,7 @@ public:
         ++size_;
     }
 
-    void remove(T* item) {
+    void remove(T* item) noexcept {
         Node& node = get_node(item);
         if (node.prev) {
             get_node(node.prev).next = node.next;
@@ -57,15 +57,15 @@ public:
         --size_;
     }
 
-    T* head() const { return head_; }
-    T* tail() const { return tail_; }
-    [[nodiscard]] std::size_t size() const { return size_; }
-    [[nodiscard]] bool empty() const { return size_ == 0; }
+    T* head() const noexcept { return head_; }
+    T* tail() const noexcept { return tail_; }
+    [[nodiscard]] std::size_t size() const noexcept { return size_; }
+    [[nodiscard]] bool empty() const noexcept { return size_ == 0; }
 
 private:
     // This assumes T has a member named 'node' of type IntrusiveList<T>::Node
     // or provides a way to get the node.
-    static Node& get_node(T* item) { return item->list_node; }
+    static Node& get_node(T* item) noexcept { return item->list_node; }
 
     T* head_ = nullptr;
     T* tail_ = nullptr;
