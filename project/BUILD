@@ -1,6 +1,28 @@
 load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library")
 
 cc_library(
+    name = "random_order_generator",
+    hdrs = ["random_order_generator.hpp"],
+    visibility = ["//visibility:public"],
+)
+
+cc_binary(
+    name = "entrypoint",
+    srcs = ["entrypoint.cpp"],
+    copts = [
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-Wpedantic",
+    ],
+    deps = [
+        "//project:order_book",
+        "//project:random_order_generator",
+        "@spdlog",
+    ],
+)
+
+cc_library(
     name = "mem_pool",
     hdrs = ["mem_pool.hpp"],
     visibility = ["//visibility:public"],
@@ -40,4 +62,40 @@ cc_binary(
         "//common:perf_utils",
         "//project:mem_pool_separate_free_structure",
     ],
+)
+
+cc_library(
+    name = "intrusive_queue",
+    hdrs = ["intrusive_queue.hpp"],
+    visibility = ["//visibility:public"],
+)
+
+cc_library(
+    name = "order",
+    hdrs = ["order.hpp"],
+    visibility = ["//visibility:public"],
+    deps = [
+        ":intrusive_queue",
+        ":order_type",
+        "@spdlog",
+    ],
+)
+
+cc_library(
+    name = "order_book",
+    srcs = ["order_book.cpp"],
+    hdrs = ["order_book.hpp"],
+    visibility = ["//visibility:public"],
+    deps = [
+        ":intrusive_queue",
+        ":mem_pool",
+        ":order",
+        "@spdlog",
+    ],
+)
+
+cc_library(
+    name = "order_type",
+    hdrs = ["order_type.hpp"],
+    visibility = ["//visibility:public"],
 )
