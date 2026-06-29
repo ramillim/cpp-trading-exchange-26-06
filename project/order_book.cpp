@@ -129,12 +129,20 @@ std::string OrderBook::toString() const {
     for (const uint64_t price : prices) {
         std::string bid_count = "0";
         if (auto it = bid_levels_.find(price); it != bid_levels_.end()) {
-            bid_count = std::to_string(it->second.size());
+            uint32_t total_size = 0;
+            for (Order *order = it->second.head(); order; order = order->list_node.next) {
+                total_size += order->size;
+            }
+            bid_count = fmt::format("{:.3f}", total_size / 1000.0);
         }
 
         std::string ask_count = "0";
         if (auto it = ask_levels_.find(price); it != ask_levels_.end()) {
-            ask_count = std::to_string(it->second.size());
+            uint32_t total_size = 0;
+            for (Order *order = it->second.head(); order; order = order->list_node.next) {
+                total_size += order->size;
+            }
+            ask_count = fmt::format("{:.3f}", total_size / 1000.0);
         }
 
         ss << fmt::format("{:>10} | {:>10.2f} | {:>10}\n", bid_count, price / 100.0, ask_count);

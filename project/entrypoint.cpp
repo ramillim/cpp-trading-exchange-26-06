@@ -2,6 +2,7 @@
 // Created by RAMIL LIM on 6/29/26.
 //
 
+#include <algorithm>
 #include <iomanip>
 #include <iostream>
 #include <random>
@@ -35,16 +36,23 @@ int main() {
             type_dis(gen) == 0 ? exchange::OrderType::Limit : exchange::OrderType::Market;
 
         auto* order = order_book.addOrder(order_id, client_id, size, price, is_buy_side, order_type);
-        if (order) {
+        if (order && order->size > 0) {
             orders.push_back(order);
         }
 
         // Randomly cancel an order with < 10% probability
         if (!orders.empty() && cancel_dis(gen) < 0.10) {
             size_t index_to_cancel = std::uniform_int_distribution<size_t>(0, orders.size() - 1)(gen);
-            order_book.cancelOrder(orders[index_to_cancel]);
+            auto* order_to_cancel = orders[index_to_cancel];
+            if (order_to_cancel->size > 0) {
+                order_book.cancelOrder(order_to_cancel);
+            }
             orders.erase(orders.begin() + index_to_cancel);
         }
+
+        // Clean up matched orders from our tracking vector
+        orders.erase(std::remove_if(orders.begin(), orders.end(), [](exchange::Order* o) { return o->size == 0; }),
+                     orders.end());
     }
 
     spdlog::info("Order Book after adding and randomly cancelling orders:\n{}", order_book.toString());

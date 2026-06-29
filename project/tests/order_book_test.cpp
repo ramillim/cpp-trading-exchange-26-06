@@ -205,13 +205,14 @@ TEST(OrderBookTest, ToString) {
 
     std::string output = order_book.toString();
     EXPECT_TRUE(output.find("Order Book for AAPL:") != std::string::npos);
-    EXPECT_TRUE(output.find("15.00") != std::string::npos);
-    EXPECT_TRUE(output.find("15.10") != std::string::npos);
-    EXPECT_TRUE(output.find("Mid Price: 15.05") != std::string::npos);
+    EXPECT_TRUE(output.find("0.100") != std::string::npos);
+    EXPECT_TRUE(output.find("150.00") != std::string::npos);
+    EXPECT_TRUE(output.find("151.00") != std::string::npos);
+    EXPECT_TRUE(output.find("Mid Price: 150.50") != std::string::npos);
 
-    // Check descending order: 15.10 should appear before 15.00
-    size_t pos15100 = output.find("15.10");
-    size_t pos15000 = output.find("15.00");
+    // Check descending order: 151.00 should appear before 150.00
+    size_t pos15100 = output.find("151.00");
+    size_t pos15000 = output.find("150.00");
     EXPECT_LT(pos15100, pos15000);
 }
 
