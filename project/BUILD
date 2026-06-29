@@ -1,6 +1,28 @@
 load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library")
 
 cc_library(
+    name = "random_order_generator",
+    hdrs = ["random_order_generator.hpp"],
+    visibility = ["//visibility:public"],
+)
+
+cc_binary(
+    name = "entrypoint",
+    srcs = ["entrypoint.cpp"],
+    copts = [
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-Wpedantic",
+    ],
+    deps = [
+        "//project:order_book",
+        "//project:random_order_generator",
+        "@spdlog",
+    ],
+)
+
+cc_library(
     name = "mem_pool",
     hdrs = ["mem_pool.hpp"],
     visibility = ["//visibility:public"],
@@ -55,6 +77,7 @@ cc_library(
     deps = [
         ":intrusive_queue",
         ":order_type",
+        "@spdlog",
     ],
 )
 
@@ -67,6 +90,7 @@ cc_library(
         ":intrusive_queue",
         ":mem_pool",
         ":order",
+        "@spdlog",
     ],
 )
 

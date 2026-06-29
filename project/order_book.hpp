@@ -2,6 +2,7 @@
 
 #include <map>
 #include <memory>
+#include <string>
 
 #include "intrusive_queue.hpp"
 #include "mem_pool.hpp"
@@ -13,8 +14,7 @@ using PriceLevel = IntrusiveQueue<Order>;
 
 class OrderBook {
 public:
-    explicit OrderBook(const std::string& symbol, const std::size_t pool_size = 1024)
-        : symbol_(symbol), order_pool_(pool_size) {}
+    explicit OrderBook(const std::string& symbol, const std::size_t pool_size = 1024);
 
     Order* addOrder(
         uint64_t order_id, uint64_t client_id, uint32_t size, uint64_t price, bool is_buy_side, OrderType order_type);
@@ -26,17 +26,19 @@ public:
     void cancelOrder(Order* order);
 
     /**
-     * Attempts to match an order with as many orders of the opposite side as possible. The remainder is returned.
-     * @param is_buy_side
-     * @param price
-     * @param size
-     * @param type
-     * @return the unmatched size
+     * Attempts to match a bid order against the ask levels.
      */
-    uint32_t tryMatch(bool is_buy_side, uint64_t price, uint32_t size, OrderType type = OrderType::Limit);
+    uint32_t matchBidOrder(uint64_t price, uint32_t size, OrderType type, uint32_t total_matched);
+
+    /**
+     * Attempts to match an ask order against the bid levels.
+     */
+    uint32_t matchAskOrder(uint64_t price, uint32_t size, OrderType type, uint32_t total_matched);
 
     [[nodiscard]] const std::map<uint64_t, PriceLevel>& getBidLevels() const { return bid_levels_; }
     [[nodiscard]] const std::map<uint64_t, PriceLevel>& getAskLevels() const { return ask_levels_; }
+
+    [[nodiscard]] std::string toString() const;
 
 private:
     void matchAtLevel(PriceLevel& level, uint32_t& total_matched, uint32_t size);

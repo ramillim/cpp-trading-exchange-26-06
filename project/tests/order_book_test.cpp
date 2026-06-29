@@ -59,30 +59,30 @@ TEST(OrderBookTest, CancelOrder) {
     EXPECT_FALSE(bid_levels.contains(15000));
 }
 
-TEST(OrderBookTest, TryMatchPerfromsAPartialMatch) {
+TEST(OrderBookTest, MatchBidOrderPerfromsAPartialMatch) {
     OrderBook order_book("AAPL", 10);
     const Order* sell100 = order_book.addOrder(1, 101, 100, 15100, false, OrderType::Limit);
 
-    const uint32_t matched = order_book.tryMatch(true, 15100, 5);
+    const uint32_t matched = order_book.matchBidOrder(15100, 5, OrderType::Limit, 0);
     EXPECT_EQ(matched, 5u);
     EXPECT_EQ(sell100->size, 95u);
 }
 
-TEST(OrderBookTest, TryMatchDoesNotExceedAvailableSize) {
+TEST(OrderBookTest, MatchBidOrderDoesNotExceedAvailableSize) {
     OrderBook order_book("AAPL", 10);
     const Order* sell100 = order_book.addOrder(1, 101, 100, 15100, false, OrderType::Limit);
 
-    const uint32_t matched = order_book.tryMatch(true, 15100, 200);
+    const uint32_t matched = order_book.matchBidOrder(15100, 200, OrderType::Limit, 0);
     EXPECT_EQ(matched, 100u);
     EXPECT_EQ(sell100->size, 0u);
 }
 
-TEST(OrderBookTest, TryMatchMatchesSharesUsingFIFO) {
+TEST(OrderBookTest, MatchBidOrderMatchesSharesUsingFIFO) {
     OrderBook order_book("AAPL", 10);
     const Order* o1 = order_book.addOrder(1, 101, 100, 15100, false, OrderType::Limit);
     const Order* o2 = order_book.addOrder(1, 101, 100, 15100, false, OrderType::Limit);
 
-    const uint32_t matched = order_book.tryMatch(true, 15100, 198);
+    const uint32_t matched = order_book.matchBidOrder(15100, 198, OrderType::Limit, 0);
     EXPECT_EQ(matched, 198u);
     EXPECT_EQ(o1->size, 0u);
     EXPECT_EQ(o2->size, 2u);
@@ -117,7 +117,7 @@ TEST(OrderBookTest, MarketBuyOrderSweepsMultipleLevels) {
     order_book.addOrder(2, 102, 100, 15100, false, OrderType::Limit);
 
     // Market buy for 150 should match both levels
-    uint32_t matched = order_book.tryMatch(true, 0, 150, OrderType::Market);
+    uint32_t matched = order_book.matchBidOrder(0, 150, OrderType::Market, 0);
     EXPECT_EQ(matched, 150u);
 
     auto& ask_levels = order_book.getAskLevels();
@@ -134,7 +134,7 @@ TEST(OrderBookTest, MarketSellOrderSweepsMultipleLevels) {
     order_book.addOrder(2, 102, 100, 14900, true, OrderType::Limit);
 
     // Market sell for 150 should match both levels
-    uint32_t matched = order_book.tryMatch(false, 0, 150, OrderType::Market);
+    uint32_t matched = order_book.matchAskOrder(0, 150, OrderType::Market, 0);
     EXPECT_EQ(matched, 150u);
 
     auto& bid_levels = order_book.getBidLevels();
@@ -152,7 +152,7 @@ TEST(OrderBookTest, LimitBuyOrderMatchesUpToPrice) {
     order_book.addOrder(3, 103, 100, 15200, false, OrderType::Limit);
 
     // Limit buy for 250 @ 15100 should match 100 @ 15000 and 100 @ 15100
-    uint32_t matched = order_book.tryMatch(true, 15100, 250, OrderType::Limit);
+    uint32_t matched = order_book.matchBidOrder(15100, 250, OrderType::Limit, 0);
     EXPECT_EQ(matched, 200u);
 
     auto& ask_levels = order_book.getAskLevels();
@@ -170,7 +170,7 @@ TEST(OrderBookTest, LimitSellOrderMatchesDownToPrice) {
     order_book.addOrder(3, 103, 100, 14800, true, OrderType::Limit);
 
     // Limit sell for 250 @ 14900 should match 100 @ 15000 and 100 @ 14900
-    uint32_t matched = order_book.tryMatch(false, 14900, 250, OrderType::Limit);
+    uint32_t matched = order_book.matchAskOrder(14900, 250, OrderType::Limit, 0);
     EXPECT_EQ(matched, 200u);
 
     auto& bid_levels = order_book.getBidLevels();
@@ -196,6 +196,23 @@ TEST(OrderBookTest, AddOrderTriggersMatchAndRestsRemainder) {
 
     auto& ask_levels = order_book.getAskLevels();
     EXPECT_FALSE(ask_levels.contains(15000));
+}
+
+TEST(OrderBookTest, ToString) {
+    OrderBook order_book("AAPL", 10);
+    order_book.addOrder(1, 101, 100, 15000, true, OrderType::Limit);
+    order_book.addOrder(2, 102, 100, 15100, false, OrderType::Limit);
+
+    std::string output = order_book.toString();
+    EXPECT_TRUE(output.find("Order Book for AAPL:") != std::string::npos);
+    EXPECT_TRUE(output.find("15.00") != std::string::npos);
+    EXPECT_TRUE(output.find("15.10") != std::string::npos);
+    EXPECT_TRUE(output.find("Mid Price: 15.05") != std::string::npos);
+
+    // Check descending order: 15.10 should appear before 15.00
+    size_t pos15100 = output.find("15.10");
+    size_t pos15000 = output.find("15.00");
+    EXPECT_LT(pos15100, pos15000);
 }
 
 }  // namespace exchange
